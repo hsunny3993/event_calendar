@@ -1,0 +1,2 @@
+class Plumber < ApplicationRecord
+end
