@@ -1,0 +1,45 @@
+<%= form_with(model: @job,
+              method: :post,
+              url: jobs_path,
+              data: { turbo: false }) do |f| %>
+
+  <% if @errors.any? %>
+    <h3>The following errors prevented the job from being saved:</h3>
+    <ul>
+      <% @errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :name, class: "form-label" %>
+    <%= f.text_field :name, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :client_id, class: "form-label" %>
+    <%= f.select :client_id,
+                 options_for_select(@clients&.map { |s| [s.name, s.id] }),
+                 { prompt: "--" },
+                 { class: "form-control" } %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :start_time, class: "form-label" %>
+    <%= f.datetime_field :start_time, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :end_time, class: "form-label" %>
+    <%= f.datetime_field :end_time, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Plumbers</label>
+    <div class="form-group">
+    <% @plumbers.each do |plumber| %>
+      <%= check_box("job", "job_relations", {:multiple => true}, plumber.id, nil) %>
+      <label for="job_job_relations_<%= plumber.id %>"><%= plumber.name %></label>
+    <% end %>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Create</button>
+<% end %>

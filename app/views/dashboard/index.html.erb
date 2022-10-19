@@ -1,5 +1,45 @@
 <div class="container">
-  <%= month_calendar do |date| %>
-    <%= date %>
-  <% end %>
+  <div class="row">
+    <div class="col-8">
+      <%= month_calendar(events: @jobs) do |date, jobs| %>
+        <%= date %>
+
+        <% jobs.each do |job| %>
+          <% if job.is_completed? %>
+            <div style="background: green"><%= job.name %></div>
+          <% else %>
+            <div><%= job.name %></div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="col-4 p-lg-3">
+      <h4>Jobs</h4>
+      <%= link_to "Add",
+                  new_job_path,
+                  class: 'btn btn-secondary col-lg-auto' %>
+      <table class="table">
+        <thead class="thead-dark">
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Client</th>
+          <th scope="col">Start time</th>
+          <th scope="col">End time</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @jobs.each do |job| %>
+          <tr>
+            <td><%= job.name %></td>
+            <td><%= job.client_id %></td>
+            <td><%= job.start_time %></td>
+            <td><%= job.end_time %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>

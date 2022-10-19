@@ -4,6 +4,23 @@ Rails.application.routes.draw do
 
   resources :clients, only: [:index, :new, :create]
   resources :plumbers, only: [:index, :new, :create]
+  resources :jobs, only: [:index, :new, :create]
+
+  namespace :api do
+    namespace :v1 do
+      resources :jobs do
+        member do
+          put :mark_job_as_completed
+        end
+      end
+
+      resources :plumbers do
+        member do
+          get :jobs_by_plumber_and_period
+        end
+      end
+    end
+  end
 
   devise_for :admins
 end

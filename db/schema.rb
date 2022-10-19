@@ -59,8 +59,10 @@ ActiveRecord::Schema.define(version: 2022_10_18_085037) do
   end
 
   create_table "jobs", force: :cascade do |t|
-    t.date "start_date", null: false
-    t.date "end_date", null: false
+    t.string "name", null: false
+    t.datetime "start_time", null: false
+    t.datetime "end_time", null: false
+    t.boolean "is_completed", default: false, null: false
     t.bigint "client_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
