@@ -1,0 +1,28 @@
+<div class="container">
+  <h2>Clients</h2>
+  <%= link_to "Add",
+              new_client_path,
+              class: 'btn btn-secondary col-lg-auto' %>
+  <table class="table">
+    <thead class="thead-dark">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+      <th scope="col">Age</th>
+      <th scope="col">Address</th>
+      <th scope="col">Vehicle</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% @clients.each_with_index do |client, idx| %>
+      <tr>
+        <th scope="row"><%= idx+1 %></th>
+        <td><%= client.name %></td>
+        <td><%= client.age %></td>
+        <td><%= client.private_note %></td>
+        <td><%= client.inline_address %></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>

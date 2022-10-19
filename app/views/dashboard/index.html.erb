@@ -1,9 +1,5 @@
 <div class="container">
-  <%= week_calendar(number_of_weeks: 2) do |date| %>
-    <%= date %>
-  <% end %>
-
-  <%= calendar(number_of_days: 4) do |date| %>
+  <%= month_calendar do |date| %>
     <%= date %>
   <% end %>
 </div>

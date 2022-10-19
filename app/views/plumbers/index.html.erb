@@ -1,0 +1,26 @@
+<div class="container">
+  <h2>Plumbers</h2>
+  <%= link_to "Add",
+              new_plumber_path,
+              class: 'btn btn-secondary col-lg-auto' %>
+  <table class="table">
+    <thead class="thead-dark">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+      <th scope="col">Address</th>
+      <th scope="col">Vehicle</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% @plumbers.each_with_index do |plumber, idx| %>
+      <tr>
+        <th scope="row"><%= idx+1 %></th>
+        <td><%= plumber.name %></td>
+        <td><%= plumber.inline_address %></td>
+        <td><%= plumber.vehicle %></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>

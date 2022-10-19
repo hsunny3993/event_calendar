@@ -1,0 +1,35 @@
+<%= form_with(model: @client,
+              method: :post,
+              url: clients_path,
+              data: { turbo: false }) do |f| %>
+  <% if @client.errors.any? %>
+    <h3>The following errors prevented the client from being saved:</h3>
+    <ul>
+      <% @client.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :name, class: "form-label" %>
+    <%= f.text_field :name, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :age, class: "form-label" %>
+    <%= f.text_field :age, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :address, class: "form-label" %>
+    <%= f.select :address_id,
+                 options_for_select(@addresses&.map { |s| [s.inline_address, s.id] }),
+                 { prompt: "--" },
+                 { class: "form-control" } %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :private_note, class: "form-label" %>
+    <%= f.text_area :private_note, class: "form-control" %>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Create</button>
+<% end %>
