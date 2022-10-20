@@ -8,10 +8,11 @@ module Api
           @jobs = @jobs.with_end_time(params[:end_time]) if params[:end_time].present?
 
           @jobs = Job.includes(:job_relations)
+                     .includes(:client)
                      .with_start_time(params[:start_time])
                      .where('job_relations.plumber_id = ?', @plumber.id)
                      .references(:job_relations)
-          render json: @jobs.to_json(:include => [:job_relations]), status: :ok
+          render json: @jobs.to_json(:include => [:job_relations, :client], :except => [:client_id]), status: :ok
         else
           render status: :bad_request
         end

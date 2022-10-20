@@ -1,0 +1,29 @@
+version: "3"
+services:
+  scheduler-app:
+    image: 103727657140.dkr.ecr.eu-central-1.amazonaws.com/scheduler-app:latest
+    build:
+      context: ../../
+      dockerfile: docker/deu1/app/Dockerfile
+    volumes:
+      - tmp:/var/www/event-clanedar/tmp
+      - public:/var/www/event-clanedar/public
+    container_name: scheduler-app
+  scheduler-web:
+    image: 103727657140.dkr.ecr.eu-central-1.amazonaws.com/scheduler-web:latest
+    build:
+      context: ../../
+      dockerfile: docker/deu1/web/Dockerfile
+    volumes:
+      - tmp:/var/www/event-clanedar/tmp
+      - public:/var/www/event-clanedar/public
+    depends_on:
+      - scheduler-app
+    ports:
+      - 3001:3001
+    links:
+      - "scheduler-app:scheduler-app"
+    container_name: scheduler-web
+volumes:
+  tmp:
+  public:

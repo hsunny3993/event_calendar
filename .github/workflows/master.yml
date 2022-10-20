@@ -4,3 +4,93 @@ on:
       - master
 
 name: Deploy master to Amazon ECS
+
+env:
+  AWS_REGION: eu-central-1
+
+  ECR_WEB_REPOSITORY: scheduler-web           # set this to your Amazon ECR repository name
+  ECR_APP_REPOSITORY: scheduler-app           # set this to your Amazon ECR repository name
+
+  ECS_APP_SERVICE: event-calendar-service     # set this to your Amazon ECS service name
+  ECS_CLUSTER: event-calendar-cluster         # set this to your Amazon ECS cluster name
+
+  ECS_TASK_DEU1_DEFINITION: .github/workflows/task-def.json   # task definition for event-calendar-service
+
+  WEB_CONTAINER: scheduler-web
+  APP_CONTAINER: scheduler-app
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # build scheduler-app
+      - name: Build, tag, and push [scheduler-app] image to Amazon ECR
+        id: build-app-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_APP_REPOSITORY }}
+          IMAGE_TAG: latest
+        run: |
+          # Build a docker container and push it to ECR so that it can be deployed to ECS.
+          docker-compose -f docker/docker-compose.yml up --build -d
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      # build scheduler-web
+      - name: Build, tag, and push [scheduler-web] image to Amazon ECR
+        id: build-web-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_WEB_REPOSITORY }}
+          IMAGE_TAG: latest
+        run: |
+          # Build a docker container and push it to ECR so that it can be deployed to ECS.
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      # register mcrx-app into task definition
+      - name: Fill in the new [scheduler-app] image ID in the Amazon ECS task definition
+        id: task-app-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEU1_DEFINITION }}
+          container-name: ${{ env.APP_CONTAINER }}
+          image: ${{ steps.build-app-image.outputs.image }}
+
+      # register mcrx-web into task definition
+      - name: Fill in the new [mcrx-web] image ID in the Amazon ECS task definition
+        id: task-web-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-app-def.outputs.task-definition }}
+          container-name: ${{ env.WEB_CONTAINER }}
+          image: ${{ steps.build-web-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-web-def.outputs.task-definition }}
+          service: ${{ env.ECS_APP_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
