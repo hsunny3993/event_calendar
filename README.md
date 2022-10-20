@@ -23,6 +23,7 @@ Things you may want to cover:
 * Deployment instructions
 
 * API endpoints
+
   GET    /api/v1/jobs/:id/jobs_by_plumber_and_period(.:format)
   
   GET    http://localhost:3000/api/v1/plumbers/{1}/jobs_by_plumber_and_period?start_time={2022-10-17 18:00:00}&end_time={2022-10-19 18:00:00}
